@@ -24,9 +24,7 @@ COPY celo/ .
 COPY config/celo.env .env
 
 # Build Next.js app (standalone output)
-# clear
-# RUN npm run build
-RUN npm ci
+RUN npm run build
 
 
 
