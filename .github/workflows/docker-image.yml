@@ -25,7 +25,6 @@ jobs:
           command_timeout: 60m
           script: |
             echo "Starting deployment..."
-
             # Paths from secrets
             DEPLOY_ROOT=${{ secrets.DEPLOY_ROOT_PATH }}      # e.g. /var/apps
             APP_PATH=${{ secrets.APP_WEB_PATH_WEB2_PRODUCTION }}  # e.g. /var/apps/celo

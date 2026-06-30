@@ -4,10 +4,10 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "next dev --port 3032",
+    "dev": "next dev --port 3024",
     "build": "next build",
-    "start": "next start --port 3032",
-    "start:prod": "NODE_ENV=production next start --port 3032",
+    "start": "next start --port 3024",
+    "start:prod": "NODE_ENV=production next start --port 3024",
     "lint": "next lint",
     "generate:json": "node scripts/generateJson.js",
     "generate:data-module": "node scripts/generateJson.js"
