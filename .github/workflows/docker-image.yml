@@ -1,0 +1,60 @@
+name: Deploy React App
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to server via SSH
+        uses: appleboy/ssh-action@v1.2.0
+        timeout-minutes: 60
+        with:
+          host: ${{ secrets.DEPLOY_HOST_WEB2 }}
+          username: ${{ secrets.DEPLOY_USER_WEB2 }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.DEPLOY_PORT_WEB2 }}
+          command_timeout: 60m
+          script: |
+            echo "Starting deployment..."
+
+            # Paths from secrets
+            DEPLOY_ROOT=${{ secrets.DEPLOY_ROOT_PATH }}      # e.g. /var/apps
+            APP_PATH=${{ secrets.APP_WEB_PATH_WEB2_PRODUCTION }}  # e.g. /var/apps/celo
+
+            echo "Deploy Root : $DEPLOY_ROOT"
+            echo "App Path    : $APP_PATH"
+
+            echo "Making directories writable..."
+            chmod -R u+w $DEPLOY_ROOT
+            chmod -R u+w $APP_PATH
+
+            echo "Pulling latest changes..."
+            cd $APP_PATH
+            git fetch origin ${{ github.ref_name }}
+            git clean -fd
+            git reset --hard origin/${{ github.ref_name }}
+
+            echo "Rebuilding app container..."
+            cd $DEPLOY_ROOT
+            
+            echo "Rebuilding app container..."
+            echo "Rebuilding ONLY the celo service (no other services)..."
+            docker compose up -d --build celo  # ← Changed to build only
+            docker compose up -d --force-recreate celo
+
+            echo "Cleaning old images..."
+            docker image prune -f
+
+            echo "Deployment completed!"
+
+            echo "=== Container Status ==="
+            docker compose ps celo
