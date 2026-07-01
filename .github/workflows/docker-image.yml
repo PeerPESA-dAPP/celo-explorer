@@ -22,7 +22,7 @@ jobs:
           username: ${{ secrets.DEPLOY_USER_WEB2 }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.DEPLOY_PORT_WEB2 }}
-          command_timeout: 60m
+          command_timeout: 50m
           script: |
             echo "Starting deployment..."
             # Paths from secrets
