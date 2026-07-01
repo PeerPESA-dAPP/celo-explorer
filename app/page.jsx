@@ -185,6 +185,11 @@ export default function DashboardPage() {
     }
 
     const response = await fetch(`/api/wallet-stats?${query.toString()}`)
+
+    if (!response.headers.get('content-type')?.includes('application/json')) {
+      throw new Error(`Unexpected response from server (status ${response.status})`)
+    }
+
     const payload = await response.json()
 
     if (!response.ok) {
