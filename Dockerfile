@@ -1,3 +1,5 @@
+# syntax=docker/dockerfile:1
+
 # ===== Build Stage =====
 FROM node:20-alpine AS build
 
@@ -13,9 +15,11 @@ WORKDIR /app
 #     pkgconf \
 #     linux-headers
 
-# Install dependencies
+# Install dependencies (npm ci for reproducible, lockfile-exact installs;
+# cache mount keeps npm's download cache across builds without bloating the image)
 COPY celo/package*.json ./
-RUN npm install
+RUN --mount=type=cache,target=/root/.npm \
+    npm ci
 
 # Copy source
 COPY celo/ .
@@ -46,12 +50,18 @@ ENV NODE_ENV=production
 #     pkgconf \
 #     linux-headers
 
+# Run as non-root
+RUN addgroup --system --gid 1001 nodejs \
+    && adduser --system --uid 1001 nextjs
+
 # Copy standalone server output
-COPY --from=build /app/.next/standalone ./
+COPY --from=build --chown=nextjs:nodejs /app/.next/standalone ./
 
 # Copy static assets
-COPY --from=build /app/.next/static ./.next/static
-COPY --from=build /app/public ./public
+COPY --from=build --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY --from=build --chown=nextjs:nodejs /app/public ./public
+
+USER nextjs
 
 EXPOSE 3005
 
