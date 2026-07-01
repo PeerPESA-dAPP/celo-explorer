@@ -61,6 +61,9 @@ COPY --from=build --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=build --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=build --chown=nextjs:nodejs /app/public ./public
 
+# Alias server.js as index.js so `node index.js` (used in docker-compose) works
+RUN cp server.js index.js && chown nextjs:nodejs index.js
+
 USER nextjs
 
 EXPOSE 3005
